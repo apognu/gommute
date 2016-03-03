@@ -11,12 +11,12 @@ type Coordinates struct {
 	Latitude  string `json:"lat"`
 }
 
-type OutJourney struct {
+type outJourney struct {
 	Duration int          `json:"duration"`
-	Section  []OutSection `json:"sections"`
+	Section  []outSection `json:"sections"`
 }
 
-type OutSection struct {
+type outSection struct {
 	Mode            string       `json:"mode"`
 	Name            string       `json:"name,omitempty"`
 	Color           string       `json:"color,omitempty"`
@@ -30,17 +30,17 @@ type OutSection struct {
 	Duration        int          `json:"duration"`
 }
 
-type JourneysResponse struct {
-	Journeys []Journey `json:"journeys"`
+type journeysResponse struct {
+	Journeys []journey `json:"journeys"`
 }
 
-func (j JourneysResponse) Normalize() *OutJourney {
+func (j journeysResponse) normalize() *outJourney {
 	if len(j.Journeys) == 0 {
 		return nil
 	}
 
 	journey := j.Journeys[0]
-	out := &OutJourney{Duration: journey.Duration}
+	out := &outJourney{Duration: journey.Duration}
 	for _, s := range journey.Sections {
 		if s.Type == "waiting" {
 			continue
@@ -49,7 +49,7 @@ func (j JourneysResponse) Normalize() *OutJourney {
 		dep, _ := time.Parse("20060102T150405", s.DepartureTime)
 		arr, _ := time.Parse("20060102T150405", s.ArrivalTime)
 
-		sec := OutSection{
+		sec := outSection{
 			FromCoordinates: s.From.Info.Coordinates,
 			ToCoordinates:   s.To.Info.Coordinates,
 			DepartureTime:   dep,
@@ -66,15 +66,15 @@ func (j JourneysResponse) Normalize() *OutJourney {
 
 		if s.Type == "street_network" {
 			sec.Mode = "walking"
-			sec.From = s.From.Name
-			sec.To = s.To.Name
+			sec.From = normalizeName(s.From.Name)
+			sec.To = normalizeName(s.To.Name)
 		} else if s.Type == "public_transport" {
 			sec.Mode = strings.ToLower(s.DisplayInformation.Mode)
 			sec.Name = s.DisplayInformation.Label
 			sec.Color = fmt.Sprintf("#%s", s.DisplayInformation.Color)
-			sec.Direction = s.DisplayInformation.Direction
-			sec.From = s.From.Info.Name
-			sec.To = s.To.Info.Name
+			sec.Direction = normalizeName(s.DisplayInformation.Direction)
+			sec.From = normalizeName(s.From.Info.Name)
+			sec.To = normalizeName(s.To.Info.Name)
 		} else if s.Type == "transfer" {
 			sec.Mode = "transfer"
 			sec.FromCoordinates = nil
@@ -87,40 +87,44 @@ func (j JourneysResponse) Normalize() *OutJourney {
 	return out
 }
 
-type Journey struct {
-	Sections []Section `json:"sections"`
+func normalizeName(s string) string {
+	return strings.Title(strings.ToLower(strings.TrimSpace(strings.Split(s, "(")[0])))
+}
+
+type journey struct {
+	Sections []section `json:"sections"`
 	Duration int       `json:"duration"`
 }
 
-type Section struct {
+type section struct {
 	Type               string             `json:"type"`
-	DisplayInformation DisplayInformation `json:"display_informations,omitempty"`
-	From               StopPoint          `json:"from"`
-	To                 StopPoint          `json:"to"`
+	DisplayInformation displayInformation `json:"display_informations,omitempty"`
+	From               stopPoint          `json:"from"`
+	To                 stopPoint          `json:"to"`
 	DepartureTime      string             `json:"departure_date_time"`
 	ArrivalTime        string             `json:"arrival_date_time"`
 	Duration           int                `json:"duration"`
 }
 
-type DisplayInformation struct {
+type displayInformation struct {
 	Mode      string `json:"commercial_mode"`
 	Label     string `json:"label"`
 	Direction string `json:"direction"`
 	Color     string `json:"color"`
 }
 
-type StopPoint struct {
+type stopPoint struct {
 	Type    string        `json:"embedded_type"`
 	Name    string        `json:"name"`
-	Info    StopPointInfo `json:"stop_point,omitempty"`
-	Address *Address      `json:"address,omitempty"`
+	Info    stopPointInfo `json:"stop_point,omitempty"`
+	Address *address      `json:"address,omitempty"`
 }
 
-type StopPointInfo struct {
+type stopPointInfo struct {
 	Name        string       `json:"name"`
 	Coordinates *Coordinates `json:"coord,omitempty"`
 }
 
-type Address struct {
+type address struct {
 	Coordinates *Coordinates `json:"coord"`
 }

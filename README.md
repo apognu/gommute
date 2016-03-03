@@ -9,7 +9,10 @@ This was crafted for a specific need (very simple itineraries) and will not be u
 ```go
 from := gommute.Coordinates{Longitude: "2.3616223", Latitude: "48.8675065"}
 to := gommute.Coordinates{Longitude: "2.2850278", Latitude: "48.8302232"}
+
 gm := gommute.New("api_key", from, to)
+gm.Time = gommute.NewTimeReference(time.Now().Add(3 * time.Hour), gommute.Departure)
+
 journey := gm.Journey()
 ```
 
@@ -21,12 +24,12 @@ Now, ```journey``` can be JSON-marshalled to this:
   "sections": [
     {
       "mode": "walking",
-      "from": "14 Rue Meslay (Paris)",
+      "from": "14 Rue Meslay",
       "from_coordinates": {
         "lon": "2.3616223",
         "lat": "48.8675065"
       },
-      "to": "République (Paris)",
+      "to": "République",
       "to_coordinates": {
         "lon": "2.363348",
         "lat": "48.867674"
@@ -39,7 +42,7 @@ Now, ```journey``` can be JSON-marshalled to this:
       "mode": "metro",
       "name": "8",
       "color": "#C5A3CA",
-      "direction": "Balard (Paris)",
+      "direction": "Balard",
       "from": "République",
       "from_coordinates": {
         "lon": "2.363348",
@@ -64,13 +67,13 @@ Now, ```journey``` can be JSON-marshalled to this:
       "mode": "tramway",
       "name": "T3A",
       "color": "#DE8B53",
-      "direction": "PORTE DE VINCENNES (Paris)",
-      "from": "BALARD",
+      "direction": "Porte De Vincennes",
+      "from": "Balard",
       "from_coordinates": {
         "lon": "2.278948",
         "lat": "48.835722"
       },
-      "to": "PORTE DE VERSAILLES - PARC DES EXPOSITIONS",
+      "to": "Porte De Versailles - Parc Des Expositions",
       "to_coordinates": {
         "lon": "2.288045",
         "lat": "48.832616"
@@ -81,12 +84,12 @@ Now, ```journey``` can be JSON-marshalled to this:
     },
     {
       "mode": "walking",
-      "from": "PORTE DE VERSAILLES - PARC DES EXPOSITIONS (Paris)",
+      "from": "Porte De Versailles - Parc Des Expositions",
       "from_coordinates": {
         "lon": "2.288045",
         "lat": "48.832616"
       },
-      "to": "Rue du Quatre Septembre (Paris) (Issy-les-Moulineaux)",
+      "to": "Rue Du Quatre Septembre",
       "to_coordinates": {
         "lon": "2.2850278",
         "lat": "48.8302232"
